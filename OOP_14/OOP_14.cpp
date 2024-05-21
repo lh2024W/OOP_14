@@ -2,70 +2,92 @@
 //
 
 #include <iostream>
-#include <list>
+#include <vector>
 using namespace std;
 
 class AnimalWorld {
-    
-    AnimalWorld* animal = nullptr;
-    
+private:
+    vector<Continent*> continents;
+    vector<Herbivore*> herbivores;
+    vector<Carnivore*> carnivores;
+
 public:
-    void SetAnimal(AnimalWorld* animal_world) {
-        animal = animal_world;
+    ~AnimalWorld() {
+        cout << "Animal World destroyed\n";
+        for (auto continent : continents) {
+            delete continent;
+        }
+        for (auto herbivore : herbivores) {
+            delete herbivore;
+        }
+        for (auto carnivore : carnivores) {
+            delete carnivore;
+        }
     }
-    AnimalWorld* GetAnimal() const {
-        return animal;
+
+    void AddContinent(Continent* continent) {
+        continents.push_back(continent);
     }
 
-    virtual void EatGrass() {};
-    virtual void EatHerbivores() {};
+    void PopulateWorld() {
+        for (auto continent : continents) {
+            continent->Populate(herbivores, carnivores);
+        }
+    }
 
-    virtual void MealsHerbivores() {/*//не работает
-        for (auto current : animals)
-            current->animal;*/
-    };
-    virtual void NutritionCarnivores() {};
-};
+    void MealsHerbivores() {
+        cout << "Herbivores eat grass...\n";
+        for (auto herbivore : herbivores) {
+            if (herbivore->IsAlive()) {
+                herbivore->EatGrass();
+            }
+        }
+    }
 
-class Animal: public AnimalWorld {
-
+    void NutritionCarnivores() {
+        cout << "Harnivores hunting on herbivores...\n";
+        for (auto carnivore : carnivores) {
+            for (auto herbivore : herbivores) {
+                if (herbivore->IsAlive()) {
+                    carnivore->Eat(herbivore);
+                }
+            }
+        }
+    }
 };
 
 //////////////////////////////////////
 
-class Herbivores : public Animal {
-protected:
+class Herbivore : public AnimalWorld {
+public:
+    virtual bool IsAlive() {};
     virtual void EatGrass() {};
 };
 
 
-class Carnivores : public Animal {
-protected:
-    virtual void EatHerbivores () {};
+class Carnivore : public AnimalWorld {
+public:
+    virtual void Eat() {};
 };
 
 ///////////////////////////////////////////
 
-class Continent {};
+class Continent {
+public:
+    virtual void Populate(){};
+};
 
 ///////////////////////////////////////////
 
-class Africa : public Continent {
-public:
-    Lion* lion;
-    Wildebeest* wildebeest;
- };
+class Africa : public Continent {};
 
-class NorthAmerica : public Continent {
-public:
-    Bison* bison;
-    Wolf* wolf;
-};
+class NorthAmerica : public Continent {};
 
 /////////////////// Africa ///////////////////////
 
-class Wildebeest : public Herbivores {
+class Wildebeest : public Herbivore {
 public:
+    Africa* Africa;
     int weight = 10;
 
     Wildebeest() : Wildebeest(15) {};
@@ -81,13 +103,14 @@ public:
         cout << "Wildebeest eat\n";
     };
 
-    bool Life() const {
+    bool IsAlive() const {
         if (weight != 0) return true;
     };
 };
 
-class Lion : public Carnivores {
+class Lion : public Carnivore {
 public:
+    Africa* Africa;
     int power = 10;
 
     Lion() : Lion(25) {};
@@ -98,7 +121,7 @@ public:
 
     ~Lion() {};
 
-    void EatHerbivores(Wildebeest* w) {
+    void Eat(Wildebeest* w) {
         if (power > w->weight) {
             power = power + 10;
             cout << "Lion eat\n";
@@ -113,8 +136,9 @@ public:
 
 /////////////////////North America////////////////////////////
 
-class Bison : public Herbivores {
+class Bison : public Herbivore {
 public:
+    NorthAmerica* NorthAmerica;
     int weight=10;
 
     Bison() : Bison(10) {};
@@ -129,13 +153,14 @@ public:
         weight = weight + 10;
         cout << "Bison eat\n";
     };
-    bool Life() const {
+    bool IsAlive() const {
         if (weight != 0) return true;
     };
 };
 
-class Wolf : public Carnivores {
+class Wolf : public Carnivore {
 public:
+    NorthAmerica* NorthAmerica;
     int power = 10;
 
     Wolf() : Wolf(20) {};
@@ -146,7 +171,7 @@ public:
 
     ~Wolf() {};
 
-    void EatHerbivores(Bison* b) {
+    void Eat(Bison* b) {
         if (power > b->weight) {
             power = power + 10;
             cout << "Wolf eat\n";
@@ -162,23 +187,11 @@ public:
 
 int main()
 {    
-    AnimalWorld animal;
-    
     Bison bison(10);
-    animal.SetAnimal(&bison);
-    animal.GetAnimal()->EatGrass();
-
     Wildebeest w(20);
-    animal.SetAnimal(&w);
-    animal.GetAnimal()->EatGrass();
-
     Lion lion(15);
-    animal.SetAnimal(&lion);
-    animal.GetAnimal()->EatHerbivores();
-
     Wolf wolf(20);
-    animal.SetAnimal(&wolf);
-    animal.GetAnimal()->EatHerbivores();
+    
 
 }
 
