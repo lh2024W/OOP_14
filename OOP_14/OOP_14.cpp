@@ -67,14 +67,14 @@ public:
 
 class Carnivore : public AnimalWorld {
 public:
-    virtual void Eat() {};
+    virtual void Eat(Herbivore* herbivore) {};
 };
 
 ///////////////////////////////////////////
 
 class Continent {
 public:
-    virtual void Populate(){};
+    virtual void Populate(Herbivore* herbivores, Carnivore* carnivores){}; // НЕ ПРАВИЛЬНО
 };
 
 ///////////////////////////////////////////
