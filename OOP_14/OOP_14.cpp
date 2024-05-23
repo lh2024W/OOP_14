@@ -5,8 +5,25 @@
 #include <vector>
 using namespace std;
 
+class Animal {};
+
+class Herbivore : public Animal {
+public:
+    virtual bool IsAlive() { return true; };
+    virtual void EatGrass() {};
+};
+
+class Carnivore : public Animal {
+public:
+    virtual void Eat(Herbivore* herbivore) {};
+};
+
+class Continent {
+public:
+    virtual void Populate(vector<Herbivore*> herbivores, vector<Carnivore*> carnivores) {};
+};
+
 class AnimalWorld {
-private:
     vector<Continent*> continents;
     vector<Herbivore*> herbivores;
     vector<Carnivore*> carnivores;
@@ -56,42 +73,17 @@ public:
     }
 };
 
-//////////////////////////////////////
-
-class Herbivore : public AnimalWorld {
-public:
-    virtual bool IsAlive() {};
-    virtual void EatGrass() {};
-};
-
-
-class Carnivore : public AnimalWorld {
-public:
-    virtual void Eat(Herbivore* herbivore) {};
-};
-
-///////////////////////////////////////////
-
-class Continent {
-public:
-    virtual void Populate(Herbivore* herbivores, Carnivore* carnivores){}; // НЕ ПРАВИЛЬНО
-};
-
-///////////////////////////////////////////
-
 class Africa : public Continent {};
 
 class NorthAmerica : public Continent {};
-
-/////////////////// Africa ///////////////////////
 
 class Wildebeest : public Herbivore {
 public:
     Africa* Africa;
     int weight = 10;
 
-    Wildebeest() : Wildebeest(15) {};
-    //главный к-тор
+    Wildebeest() : Wildebeest(25) {};
+
     Wildebeest(int weight) {
         weight = weight;
     };
@@ -100,7 +92,7 @@ public:
 
     void EatGrass() {
         weight = weight + 10;
-        cout << "Wildebeest eat\n";
+        cout << "Wildebeest eat. Her weight: " << weight << "\n";
     };
 
     bool IsAlive() const {
@@ -111,9 +103,9 @@ public:
 class Lion : public Carnivore {
 public:
     Africa* Africa;
-    int power = 10;
+    int power = 40;
 
-    Lion() : Lion(25) {};
+    Lion() : Lion(45) {};
     //главный к-тор
     Lion(int power) {
         power = power;
@@ -124,24 +116,21 @@ public:
     void Eat(Wildebeest* w) {
         if (power > w->weight) {
             power = power + 10;
-            cout << "Lion eat\n";
+            cout << "Lion eat. His power: " << power << "\n";
         }
         else {
             power = power - 10;
-            cout << "Lion do not eat\n";
+            cout << "Lion do not eat wildebeest. His power: " << power << "\n";
         }
     };
 };
 
-
-/////////////////////North America////////////////////////////
-
 class Bison : public Herbivore {
 public:
     NorthAmerica* NorthAmerica;
-    int weight=10;
+    int weight=30;
 
-    Bison() : Bison(10) {};
+    Bison() : Bison(40) {};
     //главный к-тор
     Bison(int weight) {
         weight = weight;
@@ -151,7 +140,7 @@ public:
 
     void EatGrass() {
         weight = weight + 10;
-        cout << "Bison eat\n";
+        cout << "Bison eat. His weight: " << weight << "\n";
     };
     bool IsAlive() const {
         if (weight != 0) return true;
@@ -161,9 +150,9 @@ public:
 class Wolf : public Carnivore {
 public:
     NorthAmerica* NorthAmerica;
-    int power = 10;
+    int power=35;
 
-    Wolf() : Wolf(20) {};
+    Wolf() : Wolf(50) {};
     //главный к-тор
     Wolf(int power) {
         power = power;
@@ -174,26 +163,36 @@ public:
     void Eat(Bison* b) {
         if (power > b->weight) {
             power = power + 10;
-            cout << "Wolf eat\n";
+            cout << "Wolf eat. His power: " << power << "\n";
         }
         else {
             power = power - 10;
-            cout << "Wolf do not eat\n";
+            cout << "Wolf do not eat bison. His power: " << power << "\n";
         }
     };
 };
 
-
-
 int main()
-{    
-    Bison bison(10);
-    Wildebeest w(20);
-    Lion lion(15);
+{
+    Bison bison(40);
+    bison.EatGrass();
+    Wildebeest w(30);
+    w.EatGrass();
+    Lion lion(30);
+    lion.Eat(&w);
     Wolf wolf(20);
-    
+    wolf.Eat(&bison);
 
+    
+    AnimalWorld a;
+
+    a.MealsHerbivores();
+ 
+    a.NutritionCarnivores();
+   
+    
 }
+
 
 // Запуск программы: CTRL+F5 или меню "Отладка" > "Запуск без отладки"
 // Отладка программы: F5 или меню "Отладка" > "Запустить отладку"
